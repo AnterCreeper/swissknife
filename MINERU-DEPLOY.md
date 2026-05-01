@@ -238,10 +238,9 @@ Wants=network-online.target
 
 [Service]
 Type=simple
-User=dell
-Group=dell
+User=<username>
+Group=<username>
 WorkingDirectory=/opt/mineru
-Environment=GGML_CUDA_DISABLE_GRAPHS=1
 ExecStart=/opt/mineru/llama.cpp/build/bin/llama-server \
   -m /opt/mineru/models/MinerU2.5-Pro-2604-1.2B.Q8_0.gguf \
   --mmproj /opt/mineru/models/MinerU2.5-Pro-2604-1.2B.mmproj-Q8_0.gguf \
@@ -257,7 +256,7 @@ OOMScoreAdjust=-100
 WantedBy=multi-user.target
 ```
 
-> 把 `User=dell` / `Group=dell` 替换为你的部署账户。`/opt/mineru/...` 路径若改变请同步替换。
+> 把 `User=<username>` / `Group=<username>` 替换为你的部署账户。`/opt/mineru/...` 路径若改变请同步替换。
 
 ### 10.2 `/etc/systemd/system/mineru-api.service`
 
@@ -269,12 +268,13 @@ Wants=network-online.target llama-server.service
 
 [Service]
 Type=simple
-User=dell
-Group=dell
-WorkingDirectory=/home/dell
+User=<username>
+Group=<username>
+WorkingDirectory=/home/<username>
 Environment=MINERU_MODEL_SOURCE=modelscope
-Environment=PATH=/home/dell/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
-ExecStart=/home/dell/.local/bin/mineru-api --host 0.0.0.0 --port 8000 --allow-public-http-client
+Environment=MINERU_VL_SERVER=http://127.0.0.1:8080
+Environment=PATH=/home/<username>/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+ExecStart=/home/<username>/.local/bin/mineru-api --host 0.0.0.0 --port 8000 --allow-public-http-client
 Restart=on-failure
 RestartSec=5
 TimeoutStopSec=30
@@ -288,7 +288,7 @@ WantedBy=multi-user.target
 
 - `--allow-public-http-client`：允许在非 localhost 接收请求（默认只允许 127.0.0.1）
 - `Environment=MINERU_MODEL_SOURCE=modelscope`：避免 systemd 启动时仍走 huggingface
-- `Environment=PATH=...`：包含 `/home/dell/.local/bin` 否则找不到 mineru 子命令
+- `Environment=PATH=...`：包含 `/home/<username>/.local/bin` 否则找不到 mineru 子命令
 - `After=llama-server.service`：保证 VLM 后端先就绪（即使纯 pipeline 用户保留也无害）
 - 如果**不部署 VLM**，把 `After=` / `Wants=` 中的 `llama-server.service` 删掉即可
 
@@ -401,10 +401,7 @@ watch -n0.5 nvidia-smi
 
 ### 12.7 GPU OOM
 
-→ 8GB 卡上 pipeline + VLM 共存基本是显存极限。如出现：
-
-- 关掉 VLM (`stop llama-server`)，纯 pipeline 跑
-- 或把 VLM `-ngl` 调小，部分层放 CPU
+→ 8GB 卡上 hybrid (pipeline + VLM) 共存基本是显存极限。
 
 ---
 
