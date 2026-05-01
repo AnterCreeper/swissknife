@@ -175,7 +175,7 @@ mkdir -p /opt/mineru/models && cd /opt/mineru/models
 ### 8.3 启动参数（重要）
 
 ```
--c 16384            # context, 太小会触发 KV slot 不足
+-c 4096             # context, 减小以减少内存消耗
 --parallel 3        # 并发 slot 数
 -ngl 99             # 全部层放 GPU
 --no-context-shift  # 禁用滑动窗口，避免 layout token 错乱
@@ -241,11 +241,12 @@ Type=simple
 User=dell
 Group=dell
 WorkingDirectory=/opt/mineru
+Environment=GGML_CUDA_DISABLE_GRAPHS=1
 ExecStart=/opt/mineru/llama.cpp/build/bin/llama-server \
   -m /opt/mineru/models/MinerU2.5-Pro-2604-1.2B.Q8_0.gguf \
   --mmproj /opt/mineru/models/MinerU2.5-Pro-2604-1.2B.mmproj-Q8_0.gguf \
   --host 127.0.0.1 --port 8080 \
-  -c 16384 --parallel 3 -ngl 99 \
+  -c 4096 --parallel 3 -ngl 99 \
   --no-context-shift --image-min-tokens 1024 --special
 Restart=on-failure
 RestartSec=5
