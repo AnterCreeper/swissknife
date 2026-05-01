@@ -12,7 +12,7 @@
 
 ```
 gen 10644  →  chunk tree 被更新（backup root: 838640713728）
-gen 10646  →  MineCraft 文件完整存在于 fs tree 中（root: 839601291264）
+gen 10646  →  某待恢复数据 文件完整存在于 fs tree 中（root: 839601291264）
 gen 10647  →  rsync --delete 误删发生
 gen 10665  →  chunk tree 被重写（当前 chunk root: 838640762880）
 gen 10667  →  当前文件系统状态
@@ -172,7 +172,7 @@ sudo ./btrfs restore \
 
 ## 恢复结果（本次）
 
-### MineCraft 目录
+### 某待恢复数据 目录
 
 - **文件总数**: 53（26 数据文件 + 26 md5 + 1 脚本）
 - **总大小**: 108GB
