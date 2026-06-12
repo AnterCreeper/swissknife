@@ -314,6 +314,47 @@ export LD_LIBRARY_PATH=/lib/x86_64-linux-gnu:/opt/cadence/INNOVUS191/tools.lnx86
 
 ---
 
+#### 1.2f Genus root 用户下主程序崩溃（原因不明）
+
+**现象：** root 用户下启动 ``genus``（不带 ``-v``，进入主程序）时崩溃。普通用户正常。
+
+```
+root@silicon:~# genus
+TMPDIR is being set to /tmp/genus_temp_2408093_silicon_root_KIDW63
+Cadence Genus(TM) Synthesis Solution.
+...
+Version: 20.12-s150_1, built Wed Oct 13 19:38:13 PDT 2021
+...
+OS:      Unsupported OS as /etc does not have release info
+
+Checking out license: Genus_Synthesis
+
+Loading tool scripts...
+No more memory.  Current memory consumption: 1978MB.
+  Requested 18446744071562067968 bytes, errno=12.
+Abnormal exit.
+
+Fatal internal error, code 2f696364-2f72632f-286
+...
+Stack trace:
+  ...
+  TclEvalEx
+  Tcl_Eval
+  _ZL13load_tcl_codeiPPc
+  tcltk_startup_dmn_call
+  Tcl_MainEx
+  main
+  ...
+```
+
+与 [1.2d](#12d-genus-启动崩溃systemd-nss-模块导致内存分配器损坏) 的 NSS 问题症状相似（同样的内存请求量和 ``errno=12``），但普通用户不受影响，NSS 修复（去掉 ``myhostname resolve``）对 root 无效，说明根因不同。
+
+**根因：** 不明。可能与 root 的 ``LD_LIBRARY_PATH``、``/etc/os-release`` 缺失导致的 ``Unsupported OS`` 路径、或 root 特有的某条 Tcl 初始化代码路径有关。
+
+**当前状态：** 未修复。普通用户下正常使用。
+
+---
+
 ## 二、Synopsys 工具链
 
 ### 2.1 安装/环境阶段
